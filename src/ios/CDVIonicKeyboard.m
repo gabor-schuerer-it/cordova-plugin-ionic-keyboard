@@ -197,20 +197,20 @@ typedef enum : NSUInteger {
         case ResizeBody:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.body);",
-                            _paddingBottom, (int)f.size.height];
+                            0, (int)f.size.height];
             [self.commandDelegate evalJs:js];
             break;
         }
         case ResizeIonic:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.querySelector('ion-app'));",
-                            _paddingBottom, (int)f.size.height];
+                            0, (int)f.size.height];
             [self.commandDelegate evalJs:js];
             break;
         }
         case ResizeNative:
         {
-            [self.webView setFrame:CGRectMake(wf.origin.x, wf.origin.y, f.size.width - wf.origin.x, f.size.height - wf.origin.y - self.paddingBottom)];
+            [self.webView setFrame:CGRectMake(wf.origin.x, wf.origin.y, f.size.width - wf.origin.x, f.size.height - wf.origin.y - 0)];
             break;
         }
         default:
