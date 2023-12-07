@@ -39,7 +39,6 @@ typedef enum : NSUInteger {
 @property (nonatomic, readwrite) ResizePolicy keyboardResizes;
 @property (nonatomic, readwrite) BOOL isWK;
 @property (nonatomic, readwrite) int paddingBottom;
-@property (nonatomic, strong) NSKeyValueObservation *safeAreaInsetsObservation;
 
 @end
 
@@ -95,23 +94,6 @@ typedef enum : NSUInteger {
         [nc removeObserver:self.webView name:UIKeyboardWillShowNotification object:nil];
         [nc removeObserver:self.webView name:UIKeyboardWillChangeFrameNotification object:nil];
         [nc removeObserver:self.webView name:UIKeyboardDidChangeFrameNotification object:nil];
-    }
-
-    self.safeAreaInsetsObservation = [self.webView.scrollView addObserver:self
-                                                                 forKeyPath:@"safeAreaInsets"
-                                                                    options:NSKeyValueObservingOptionNew
-                                                                    context:nil];
-}
-
-// Implement the observeValueForKeyPath method to handle safe area changes
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
-                       context:(void *)context
-{
-    if ([keyPath isEqualToString:@"safeAreaInsets"] && object == self.webView.scrollView) {
-        // Safe area insets changed, update the frame
-        [self _updateFrame];
     }
 }
 
@@ -181,14 +163,14 @@ typedef enum : NSUInteger {
 
 - (void)setPaddingBottom:(int)paddingBottom delay:(NSTimeInterval)delay
 {
-    if (self.paddingBottom == paddingBottom) {
+
+    int height = paddingBottom - self.view.safeAreaInsets.bottom;
+
+    if (self.paddingBottom == height) {
         return;
     }
 
-    self.paddingBottom = paddingBottom;
-
-    // Subtract safeAreaInsets.bottom from paddingBottom
-    self.paddingBottom -= self.view.safeAreaInsets.bottom;
+    self.paddingBottom = height;
 
     __weak CDVIonicKeyboard* weakSelf = self;
     SEL action = @selector(_updateFrame);
@@ -315,7 +297,6 @@ static IMP WKOriginalImp;
 
 - (void)dealloc
 {
-    [self.webView.scrollView removeObserver:self forKeyPath:@"safeAreaInsets"];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
