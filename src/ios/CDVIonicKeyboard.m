@@ -163,14 +163,13 @@ typedef enum : NSUInteger {
 
 - (void)setPaddingBottom:(int)paddingBottom delay:(NSTimeInterval)delay
 {
-    
+
     if (self.paddingBottom == paddingBottom) {
         NSLog(@"CDVIonicKeyboard: self.paddingBottom == paddingBottom");
         return;
     }
 
     NSLog(@"CDVIonicKeyboard: paddingBottom value is: %d", paddingBottom);
-
 
     self.paddingBottom = paddingBottom;
 
@@ -189,7 +188,11 @@ typedef enum : NSUInteger {
     CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
     int statusBarHeight = MIN(statusBarSize.width, statusBarSize.height);
     
-    int _paddingBottom = 0;
+    int _paddingBottom = (int)self.paddingBottom;
+
+   if (statusBarHeight == 40) {
+       _paddingBottom = _paddingBottom + 20;
+   }
 
     NSLog(@"CDVIonicKeyboard: updating frame");
     // NOTE: to handle split screen correctly, the application's window bounds must be used as opposed to the screen's bounds.
