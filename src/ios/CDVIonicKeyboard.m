@@ -163,14 +163,11 @@ typedef enum : NSUInteger {
 
 - (void)setPaddingBottom:(int)paddingBottom delay:(NSTimeInterval)delay
 {
-
-    int height = paddingBottom - self.view.safeAreaInsets.bottom;
-
-    if (self.paddingBottom == height) {
+    if (self.paddingBottom == paddingBottom) {
         return;
     }
 
-    self.paddingBottom = height;
+    self.paddingBottom = paddingBottom;
 
     __weak CDVIonicKeyboard* weakSelf = self;
     SEL action = @selector(_updateFrame);
