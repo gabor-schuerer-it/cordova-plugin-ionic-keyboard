@@ -221,7 +221,7 @@ typedef enum : NSUInteger {
         {
             NSLog(@"CDVIonicKeyboard: ResizeMode: native");
 
-            [self.webView setFrame:CGRectMake(wf.origin.x, wf.origin.y, f.size.width - wf.origin.x, f.size.height - wf.origin.y)];
+            [self.webView setFrame:CGRectMake(wf.origin.x, wf.origin.y, f.size.width - wf.origin.x, f.size.height - wf.origin.y - self.paddingBottom)];
             break;
         }
         default:
