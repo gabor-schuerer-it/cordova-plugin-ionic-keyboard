@@ -163,9 +163,7 @@ typedef enum : NSUInteger {
 
 - (void)setPaddingBottom:(int)paddingBottom delay:(NSTimeInterval)delay
 {
-    // Subtract 35 from the original paddingBottom value
-    int newPaddingBottom = MAX(0, paddingBottom - 10); // Ensure the result is not negative
-
+    
     if (self.paddingBottom == paddingBottom) {
         NSLog(@"CDVIonicKeyboard: self.paddingBottom == paddingBottom");
         return;
