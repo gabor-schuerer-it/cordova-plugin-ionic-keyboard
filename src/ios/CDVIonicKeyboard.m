@@ -167,8 +167,12 @@ typedef enum : NSUInteger {
     int newPaddingBottom = MAX(0, paddingBottom - 10); // Ensure the result is not negative
 
     if (self.paddingBottom == paddingBottom) {
+        NSLog(@"CDVIonicKeyboard: self.paddingBottom == paddingBottom");
         return;
     }
+
+    NSLog(@"CDVIonicKeyboard: paddingBottom value is: %d", paddingBottom);
+
 
     self.paddingBottom = paddingBottom;
 
@@ -193,9 +197,11 @@ typedef enum : NSUInteger {
     // NOTE: to handle split screen correctly, the application's window bounds must be used as opposed to the screen's bounds.
     CGRect f = [[[[UIApplication sharedApplication] delegate] window] bounds];
     CGRect wf = self.webView.frame;
+
     switch (self.keyboardResizes) {
         case ResizeBody:
         {
+            NSLog(@"CDVIonicKeyboard: ResizeMode: body");
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.body);",
                             _paddingBottom, (int)f.size.height];
             [self.commandDelegate evalJs:js];
@@ -203,6 +209,8 @@ typedef enum : NSUInteger {
         }
         case ResizeIonic:
         {
+            NSLog(@"CDVIonicKeyboard: ResizeMode: ionic");
+
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.querySelector('ion-app'));",
                             _paddingBottom, (int)f.size.height];
             [self.commandDelegate evalJs:js];
@@ -210,6 +218,8 @@ typedef enum : NSUInteger {
         }
         case ResizeNative:
         {
+            NSLog(@"CDVIonicKeyboard: ResizeMode: native");
+
             [self.webView setFrame:CGRectMake(wf.origin.x, wf.origin.y, f.size.width - wf.origin.x, f.size.height - wf.origin.y)];
             break;
         }
