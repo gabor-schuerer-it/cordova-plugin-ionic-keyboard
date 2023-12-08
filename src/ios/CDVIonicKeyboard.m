@@ -39,7 +39,6 @@ typedef enum : NSUInteger {
 @property (nonatomic, readwrite) ResizePolicy keyboardResizes;
 @property (nonatomic, readwrite) BOOL isWK;
 @property (nonatomic, readwrite) int paddingBottom;
-@property (nonatomic, assign) UIEdgeInsets currentSafeAreaInsets;
 
 @end
 
@@ -57,20 +56,6 @@ typedef enum : NSUInteger {
     NSDictionary *settings = self.commandDelegate.settings;
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(statusBarDidChangeFrame:) name: UIApplicationDidChangeStatusBarFrameNotification object:nil];
-    // Get initial safe area insets
-    [self updateSafeAreaInsets];
-
-     // Observe changes to the keyboard frame
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onKeyboardWillShow:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onKeyboardWillHide:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
-
 
     self.keyboardResizes = ResizeNative;
     BOOL doesResize = [settings cordovaBoolSettingForKey:@"KeyboardResize" defaultValue:YES];
@@ -139,8 +124,6 @@ typedef enum : NSUInteger {
 {
     CGRect rect = [[note.userInfo valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     double height = rect.size.height;
-    height -= self.currentSafeAreaInsets.bottom;
-
 
     if (self.isWK) {
         double duration = [[note.userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
@@ -210,28 +193,24 @@ typedef enum : NSUInteger {
     // NOTE: to handle split screen correctly, the application's window bounds must be used as opposed to the screen's bounds.
     CGRect f = [[[[UIApplication sharedApplication] delegate] window] bounds];
     CGRect wf = self.webView.frame;
-
-     // Adjust height with safe area insets
-    int safeAreaBottom = self.currentSafeAreaInsets.bottom;
-
     switch (self.keyboardResizes) {
         case ResizeBody:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.body);",
-                            _paddingBottom, (int)f.size.height - safeAreaBottom];
+                            _paddingBottom, (int)f.size.height];
             [self.commandDelegate evalJs:js];
             break;
         }
         case ResizeIonic:
         {
             NSString *js = [NSString stringWithFormat:@"Keyboard.fireOnResize(%d, %d, document.querySelector('ion-app'));",
-                            _paddingBottom, (int)f.size.height - safeAreaBottom];
+                            _paddingBottom, (int)f.size.height];
             [self.commandDelegate evalJs:js];
             break;
         }
         case ResizeNative:
         {
-            [self.webView setFrame:CGRectMake(wf.origin.x, wf.origin.y, f.size.width - wf.origin.x, f.size.height - wf.origin.y - safeAreaBottom)];
+            [self.webView setFrame:CGRectMake(wf.origin.x, wf.origin.y, f.size.width - wf.origin.x, f.size.height - wf.origin.y)];
             break;
         }
         default:
@@ -310,16 +289,6 @@ static IMP WKOriginalImp;
         self.keyboardResizes = ResizeNative;
     } else {
         self.keyboardResizes = ResizeNone;
-    }
-}
-
-- (void)updateSafeAreaInsets
-{
-    if (@available(iOS 11.0, *)) {
-        self.currentSafeAreaInsets = self.webView.safeAreaInsets;
-    } else {
-        // Fallback for older iOS versions
-        self.currentSafeAreaInsets = UIEdgeInsetsZero;
     }
 }
 
